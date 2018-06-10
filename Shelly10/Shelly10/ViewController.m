@@ -118,7 +118,8 @@ BOOL hasRun = false;
     mkdir("/etc/dropbear", 0755);
     mkdir("/var/log", 0755);
     fclose(fopen("/var/log/lastlog", "w+"));
-    
+    fclose(fopen("/shelly/dropbear.pid", "w+"));
+
     const char *args[] = (const char *[]) {
         "/shelly/bins/dropbear",
         "-p",
@@ -126,10 +127,11 @@ BOOL hasRun = false;
         "-p",
         "2222",
         "-R",
-        "-E",
         "-m",
         "-S",
         "/",
+        "-P",
+        "/shelly/dropbear.pid",
         NULL
     };
     execprog("/shelly/bins/dropbear", args);
