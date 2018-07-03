@@ -131,8 +131,9 @@ int remount_root(uint64_t kslide, uint64_t root_vnode) {
     uint64_t v_mount = rk64(rootfs_vnode + off);
     uint32_t v_flag = rk32(v_mount + MOUNT_MNT_FLAG);
     
-    v_flag = v_flag & ~MNT_NOSUID;
-    v_flag = v_flag & ~MNT_RDONLY;
+    // Don't do this - it breaks < 10.3
+    //    v_flag = v_flag & ~MNT_NOSUID;
+    //    v_flag = v_flag & ~MNT_RDONLY;
     
     // unset rootfs flag
     wk32(v_mount + MOUNT_MNT_FLAG, v_flag & ~MNT_ROOTFS);
@@ -142,9 +143,10 @@ int remount_root(uint64_t kslide, uint64_t root_vnode) {
     kern_return_t rv = mount("hfs", "/", MNT_UPDATE, (void *)&nmz);
     NSLog(@"remounting: %d", rv);
     
-    // set original flags back
+    // Add ROOTFS back to new flags
     v_mount = rk64(rootfs_vnode + off);
-    wk32(v_mount + MOUNT_MNT_FLAG, v_flag);
+    v_flag = rk32(v_mount + MOUNT_MNT_FLAG);
+    wk32(v_mount + MOUNT_MNT_FLAG, v_flag | MNT_ROOTFS);
     
     return rv;
 }
